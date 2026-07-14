@@ -46,16 +46,16 @@ resource "aws_security_group" "devops_sg" {
 
   # Grafana
   ingress {
-    from_port   = 3000
-    to_port     = 3000
+    from_port   = 30000
+    to_port     = 30000
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
 
   # Prometheus
   ingress {
-    from_port   = 9090
-    to_port     = 9090
+    from_port   = 30090
+    to_port     = 30090
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }

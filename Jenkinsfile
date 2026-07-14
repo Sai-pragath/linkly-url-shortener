@@ -42,6 +42,9 @@ pipeline {
                 
                 // Then apply App (dynamically setting the image)
                 sh 'sed "s|\\${DOCKER_IMAGE}|${DOCKER_IMAGE_NAME}:${IMAGE_TAG}|g" devops/k8s/app-deployment.yaml | kubectl apply -f -'
+                
+                // Lastly, apply the ServiceMonitor so Prometheus scrapes the app
+                sh 'kubectl apply -f devops/k8s/service-monitor.yaml'
             }
         }
     }

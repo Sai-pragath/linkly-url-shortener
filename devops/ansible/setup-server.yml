@@ -161,10 +161,10 @@
         --set grafana.service.nodePort=30000
         --set prometheus.service.type=NodePort
         --set prometheus.service.nodePort=30090
-        --timeout 10m
+        --timeout 15m
       environment:
         KUBECONFIG: /etc/rancher/k3s/k3s.yaml
       register: helm_install
       until: helm_install.rc == 0
-      retries: 3
-      delay: 30
+      retries: 10
+      delay: 60

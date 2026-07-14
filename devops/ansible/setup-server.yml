@@ -164,3 +164,7 @@
         --timeout 10m
       environment:
         KUBECONFIG: /etc/rancher/k3s/k3s.yaml
+      register: helm_install
+      until: helm_install.rc == 0
+      retries: 3
+      delay: 30

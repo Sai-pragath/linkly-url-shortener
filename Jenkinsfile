@@ -3,7 +3,7 @@ pipeline {
 
     environment {
         DOCKER_HUB_CREDENTIALS = credentials('dockerhub-credentials') // Needs to be configured in Jenkins
-        DOCKER_IMAGE_NAME = 'yourdockerhubusername/url-shortener' // User needs to update this
+        DOCKER_IMAGE_NAME = 'saipragath/url-shortener' // User needs to update this
         IMAGE_TAG = "${BUILD_NUMBER}"
         KUBECONFIG = '/etc/rancher/k3s/k3s.yaml'
     }

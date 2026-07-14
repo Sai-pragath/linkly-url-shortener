@@ -143,7 +143,28 @@
     # ==========================
     # HELM & MONITORING (Prometheus/Grafana)
     # ==========================
-    # NOTE: The kube-prometheus-stack has been intentionally removed.
-    # A t3.micro (1GB RAM) cannot physically handle the CPU/IO load of installing 
-    # 60+ Prometheus CRDs alongside Jenkins and Kubernetes without timing out.
-    # To use Prometheus, you must upgrade your EC2 instance to at least a t3.medium.
+    - name: Install Helm
+      shell: curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+      args:
+        creates: /usr/local/bin/helm
+        
+    - name: Add Prometheus Community Helm repo
+      shell: helm repo add prometheus-community https://prometheus-community.github.io/helm-charts && helm repo update
+      environment:
+        KUBECONFIG: /etc/rancher/k3s/k3s.yaml
+
+    - name: Install Kube-Prometheus-Stack (Prometheus & Grafana)
+      shell: >
+        helm upgrade --install monitoring prometheus-community/kube-prometheus-stack 
+        --namespace monitoring --create-namespace
+        --set grafana.service.type=NodePort
+        --set grafana.service.nodePort=30000
+        --set prometheus.service.type=NodePort
+        --set prometheus.service.nodePort=30090
+        --timeout 10m
+      environment:
+        KUBECONFIG: /etc/rancher/k3s/k3s.yaml
+      register: helm_install
+      until: helm_install.rc == 0
+      retries: 3
+      delay: 30

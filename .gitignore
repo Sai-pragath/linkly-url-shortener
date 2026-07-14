@@ -31,3 +31,10 @@ build/
 
 ### VS Code ###
 .vscode/
+
+### DevOps & Terraform ###
+.terraform/
+*.tfstate
+*.tfstate.*
+.terraform.lock.hcl
+*.pem

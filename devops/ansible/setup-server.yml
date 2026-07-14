@@ -3,6 +3,34 @@
   hosts: all
   become: yes
   tasks:
+    - name: Create swap file to prevent OOM on Free Tier
+      command: fallocate -l 4G /swapfile
+      args:
+        creates: /swapfile
+
+    - name: Set permissions on swap file
+      file:
+        path: /swapfile
+        mode: '0600'
+
+    - name: Format swap file
+      command: mkswap /swapfile
+      when: ansible_swaptotal_mb == 0
+
+    - name: Enable swap file
+      command: swapon /swapfile
+      when: ansible_swaptotal_mb == 0
+
+    - name: Add swap to fstab
+      mount:
+        name: none
+        src: /swapfile
+        fstype: swap
+        opts: sw
+        passno: 0
+        dump: 0
+        state: present
+
     - name: Update apt cache
       apt:
         update_cache: yes
@@ -22,15 +50,26 @@
     # ==========================
     # DOCKER INSTALLATION
     # ==========================
-    - name: Add Docker GPG key
-      apt_key:
+    - name: Clean up old conflicting apt repo files to prevent GPG errors
+      shell: rm -f /etc/apt/sources.list.d/*docker* /etc/apt/sources.list.d/*jenkins* /etc/apt/sources.list.d/archive_uri_*
+      ignore_errors: yes
+
+    - name: Ensure keyrings directory exists
+      file:
+        path: /etc/apt/keyrings
+        state: directory
+        mode: '0755'
+
+    - name: Download Docker GPG key
+      get_url:
         url: https://download.docker.com/linux/ubuntu/gpg
-        state: present
+        dest: /etc/apt/keyrings/docker-archive-keyring.asc
 
     - name: Add Docker repository
       apt_repository:
-        repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu {{ ansible_distribution_release }} stable
+        repo: deb [arch=amd64 signed-by=/etc/apt/keyrings/docker-archive-keyring.asc] https://download.docker.com/linux/ubuntu {{ ansible_facts['distribution_release'] }} stable
         state: present
+        filename: docker
 
     - name: Install Docker
       apt:
@@ -55,15 +94,21 @@
     # ==========================
     # JENKINS INSTALLATION
     # ==========================
-    - name: Add Jenkins GPG key
-      apt_key:
-        url: https://pkg.jenkins.io/debian-stable/jenkins.io-2023.key
-        state: present
+    - name: Remove old broken Jenkins repo file
+      file:
+        path: /etc/apt/sources.list.d/archive_uri_https_pkg_jenkins_io_debian_stable_binary_.list
+        state: absent
+
+    - name: Download Jenkins GPG key
+      get_url:
+        url: https://pkg.jenkins.io/debian-stable/jenkins.io-2026.key
+        dest: /etc/apt/keyrings/jenkins-keyring.asc
 
     - name: Add Jenkins repository
       apt_repository:
-        repo: deb https://pkg.jenkins.io/debian-stable binary/
+        repo: deb [signed-by=/etc/apt/keyrings/jenkins-keyring.asc] https://pkg.jenkins.io/debian-stable binary/
         state: present
+        filename: jenkins
 
     - name: Install Jenkins
       apt:

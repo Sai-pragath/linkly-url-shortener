@@ -1,0 +1,730 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Linkly | Premium URL Shortener</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --primary-hover: #4338ca;
+            --bg-color: #f8fafc;
+            --bg-secondary: #f1f5f9;
+            --card-bg: #ffffff;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --success: #10b981;
+            --error: #ef4444;
+            --danger: #ef4444;
+            --danger-hover: #dc2626;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        /* Navbar */
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.5rem 5%;
+            background-color: var(--card-bg);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .logo {
+            font-size: 1.75rem;
+            font-weight: 800;
+            letter-spacing: -0.05em;
+        }
+        .logo span { color: var(--primary); }
+
+        .nav-links a {
+            margin-left: 2rem;
+            text-decoration: none;
+            color: var(--text-muted);
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+        .nav-links a:hover { color: var(--primary); }
+
+        /* Hero Section */
+        .hero {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4rem;
+            padding: 4rem 5%;
+            max-width: 1400px;
+            margin: 0 auto;
+            align-items: center;
+        }
+
+        @media (max-width: 900px) {
+            .hero {
+                grid-template-columns: 1fr;
+                text-align: center;
+            }
+        }
+
+        .hero-content h1 {
+            font-size: 3.5rem;
+            font-weight: 800;
+            line-height: 1.1;
+            margin-bottom: 1.5rem;
+            letter-spacing: -0.025em;
+        }
+        
+        .hero-content h1 span {
+            color: var(--primary);
+            position: relative;
+        }
+
+        .hero-content p {
+            font-size: 1.15rem;
+            color: var(--text-muted);
+            margin-bottom: 2rem;
+            line-height: 1.6;
+        }
+
+        .feature-bullets {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .bullet {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.05rem;
+            font-weight: 500;
+            color: var(--text-main);
+        }
+
+        .bullet-icon {
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            width: 24px;
+            height: 24px;
+            background-color: #e0e7ff;
+            color: var(--primary);
+            border-radius: 50%;
+            font-size: 0.8rem;
+        }
+
+        /* Stats Row */
+        .stats-row {
+            display: flex;
+            gap: 2rem;
+            margin-top: 2rem;
+            border-top: 1px solid var(--border);
+            padding-top: 2rem;
+        }
+
+        .stat-item h3 {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: var(--primary);
+        }
+
+        .stat-item p {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            margin-bottom: 0;
+            font-weight: 500;
+        }
+
+        @media (max-width: 900px) {
+            .feature-bullets { align-items: center; }
+            .stats-row { justify-content: center; }
+        }
+
+        /* Card / Form */
+        .card {
+            background-color: var(--card-bg);
+            border-radius: 16px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            padding: 2.5rem;
+            width: 100%;
+            border: 1px solid var(--border);
+        }
+
+        .input-group {
+            margin-bottom: 1.5rem;
+            text-align: left;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            font-size: 0.95rem;
+            color: var(--text-main);
+        }
+
+        input[type="url"], input[type="text"] {
+            width: 100%;
+            padding: 0.875rem 1rem;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 1rem;
+            font-family: 'Inter', sans-serif;
+            transition: all 0.2s;
+            outline: none;
+            background-color: #f8fafc;
+        }
+
+        input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15);
+            background-color: #fff;
+        }
+
+        button {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 1rem;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            transition: all 0.2s ease;
+            font-family: 'Inter', sans-serif;
+            box-shadow: 0 4px 6px -1px rgba(79, 70, 229, 0.3);
+        }
+
+        button:hover {
+            background-color: var(--primary-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 8px -1px rgba(79, 70, 229, 0.4);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        /* Result Area */
+        .result-area {
+            margin-top: 2rem;
+            padding: 1.5rem;
+            background-color: #f0fdf4;
+            border: 1px solid #bbf7d0;
+            border-radius: 8px;
+            display: none;
+            animation: fadeIn 0.4s ease;
+            text-align: center;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .result-area p {
+            color: var(--success);
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+            font-size: 0.9rem;
+            text-align: left;
+        }
+
+        .short-url-box {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 1.5rem;
+        }
+
+        .short-url-box input {
+            background-color: white;
+            border-color: #bbf7d0;
+            color: var(--text-main);
+            font-weight: 500;
+            flex-grow: 1;
+        }
+
+        .copy-btn {
+            width: auto;
+            background-color: white;
+            color: var(--primary);
+            border: 1px solid var(--primary);
+            padding: 0.875rem 1.25rem;
+            box-shadow: none;
+        }
+
+        .copy-btn:hover {
+            background-color: #f5f3ff;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .qr-code-container {
+            margin-top: 1rem;
+            padding: 1rem;
+            background: white;
+            border-radius: 8px;
+            display: inline-block;
+            border: 1px solid var(--border);
+        }
+
+        .qr-code-container img {
+            width: 140px;
+            height: 140px;
+            display: block;
+        }
+
+        .message {
+            margin-top: 1rem;
+            font-size: 0.9rem;
+            font-weight: 500;
+            text-align: center;
+        }
+        .message.error { color: var(--error); }
+        .message.success { color: var(--success); }
+
+        /* Informational Feature Cards below Hero */
+        .features-grid {
+            background-color: var(--bg-secondary);
+            padding: 5rem 5%;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            text-align: center;
+            border-top: 1px solid var(--border);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .feature-card {
+            background: var(--card-bg);
+            padding: 2.5rem 1.5rem;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s ease;
+        }
+        .feature-card:hover {
+            transform: translateY(-5px);
+        }
+        .feature-card .icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+        .feature-card h3 {
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-bottom: 0.75rem;
+        }
+        .feature-card p {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+
+        /* Recent Links Table */
+        .recent-section {
+            width: 100%;
+            max-width: 1100px;
+            margin: 4rem auto;
+            padding: 0 5%;
+        }
+
+        .recent-section h2 {
+            font-size: 1.75rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            color: var(--text-main);
+            text-align: center;
+        }
+        
+        .recent-section > p {
+            text-align: center;
+            color: var(--text-muted);
+            margin-bottom: 2rem;
+        }
+
+        .table-container {
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
+            border: 1px solid var(--border);
+            overflow: hidden;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+        }
+
+        th, td {
+            padding: 1.25rem 1.5rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        th {
+            background-color: #f8fafc;
+            color: var(--text-muted);
+            font-weight: 600;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        td {
+            font-size: 0.95rem;
+            color: var(--text-main);
+            vertical-align: middle;
+        }
+
+        tr:last-child td { border-bottom: none; }
+        tr:hover td { background-color: #f8fafc; }
+
+        .truncate {
+            max-width: 250px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: inline-block;
+            vertical-align: middle;
+        }
+
+        .badge {
+            background-color: #eff6ff;
+            color: #2563eb;
+            padding: 0.25rem 0.75rem;
+            border-radius: 999px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .delete-btn {
+            background-color: transparent;
+            color: var(--danger);
+            border: 1px solid var(--danger);
+            padding: 0.4rem 0.75rem;
+            font-size: 0.85rem;
+            width: auto;
+            border-radius: 6px;
+            box-shadow: none;
+        }
+
+        .delete-btn:hover {
+            background-color: #fef2f2;
+            color: var(--danger-hover);
+            transform: none;
+            box-shadow: none;
+        }
+
+        /* Footer */
+        footer {
+            background-color: var(--card-bg);
+            border-top: 1px solid var(--border);
+            text-align: center;
+            padding: 2rem 5%;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            margin-top: auto;
+        }
+
+    </style>
+</head>
+<body>
+
+    <!-- Navigation -->
+    <nav>
+        <div class="logo">Linkly<span>.</span></div>
+        <div class="nav-links">
+            <a href="#">Features</a>
+            <a href="#">Pricing</a>
+            <a href="#">API</a>
+            <a href="#">Login</a>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <div class="hero">
+        <div class="hero-content">
+            <h1>Short links, <span>big results.</span></h1>
+            <p>A powerful URL shortener built for marketers, developers, and everyday users. Create branded links, track clicks in real-time, and generate instant QR codes.</p>
+            
+            <div class="feature-bullets">
+                <div class="bullet">
+                    <span class="bullet-icon">✓</span> Custom link aliases
+                </div>
+                <div class="bullet">
+                    <span class="bullet-icon">✓</span> Real-time click analytics
+                </div>
+                <div class="bullet">
+                    <span class="bullet-icon">✓</span> Automatically generated QR Codes
+                </div>
+            </div>
+
+            <div class="stats-row">
+                <div class="stat-item">
+                    <h3 id="totalLinksCounter">0</h3>
+                    <p>Links Created</p>
+                </div>
+                <div class="stat-item">
+                    <h3 id="totalClicksCounter">0</h3>
+                    <p>Total Clicks Tracked</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="hero-form">
+            <div class="card">
+                <div class="input-group">
+                    <label for="longUrl">Destination URL</label>
+                    <input type="url" id="longUrl" placeholder="https://your-very-long-url.com/goes/here" required>
+                </div>
+                
+                <div class="input-group">
+                    <label for="customAlias">Custom Alias (Optional)</label>
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <span style="color: var(--text-muted); font-size: 0.95rem;" id="domainPrefix">localhost:8080/</span>
+                        <input type="text" id="customAlias" placeholder="my-custom-link" maxlength="50">
+                    </div>
+                </div>
+
+                <button id="shortenBtn" onclick="shortenUrl()">Shorten URL</button>
+
+                <div id="statusMessage" class="message"></div>
+                
+                <div id="resultArea" class="result-area">
+                    <p>🎉 Your link is ready!</p>
+                    <div class="short-url-box">
+                        <input type="text" id="shortLink" readonly>
+                        <button class="copy-btn" onclick="copyToClipboard()">Copy</button>
+                    </div>
+                    
+                    <p style="text-align: center; color: var(--text-muted); font-size: 0.85rem; margin-bottom: 0.5rem;">Scan QR Code</p>
+                    <div class="qr-code-container">
+                        <img id="qrCodeImg" src="" alt="QR Code for Short URL">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Features Overview -->
+    <div class="features-grid">
+        <div class="feature-card">
+            <div class="icon">⚡</div>
+            <h3>Lightning Fast</h3>
+            <p>Built with Java Spring Boot, our platform ensures redirects happen in milliseconds, providing a seamless experience for your users.</p>
+        </div>
+        <div class="feature-card">
+            <div class="icon">🏷️</div>
+            <h3>Brand Control</h3>
+            <p>Take control of your links with custom aliases. Stop using random characters and start using branded links that build trust.</p>
+        </div>
+        <div class="feature-card">
+            <div class="icon">📱</div>
+            <h3>Mobile Ready</h3>
+            <p>Every short link instantly generates a scannable QR Code. Perfect for business cards, flyers, and digital presentations.</p>
+        </div>
+    </div>
+
+    <!-- Recent Links Section -->
+    <div class="recent-section">
+        <h2>Recent Links Dashboard</h2>
+        <p>Monitor the performance of the latest links created on the platform.</p>
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Original URL</th>
+                        <th>Short Link</th>
+                        <th>Clicks</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="recentTableBody">
+                    <tr><td colspan="4" style="text-align:center; color: var(--text-muted);">Loading recent links...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <p>&copy; 2026 Linkly URL Shortener. Built with Java Spring Boot.</p>
+    </footer>
+
+    <script>
+        document.getElementById('domainPrefix').innerText = window.location.host + '/';
+
+        // Fetch recent URLs on page load
+        document.addEventListener('DOMContentLoaded', fetchRecentUrls);
+
+        async function shortenUrl() {
+            const urlInput = document.getElementById('longUrl').value;
+            const aliasInput = document.getElementById('customAlias').value;
+            const statusMsg = document.getElementById('statusMessage');
+            const resultArea = document.getElementById('resultArea');
+            const shortLink = document.getElementById('shortLink');
+            const qrCodeImg = document.getElementById('qrCodeImg');
+            const btn = document.getElementById('shortenBtn');
+            
+            statusMsg.className = 'message';
+            statusMsg.innerText = '';
+            resultArea.style.display = 'none';
+
+            if (!urlInput) {
+                statusMsg.className = 'message error';
+                statusMsg.innerText = 'Please enter a valid Destination URL!';
+                return;
+            }
+
+            btn.innerText = 'Shortening...';
+            btn.disabled = true;
+
+            try {
+                const response = await fetch('/api/v1/urls', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        url: urlInput,
+                        customAlias: aliasInput
+                    })
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    shortLink.value = data.shortUrl;
+                    
+                    // Generate QR Code via free API
+                    qrCodeImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(data.shortUrl)}`;
+
+                    resultArea.style.display = 'block';
+                    document.getElementById('longUrl').value = '';
+                    document.getElementById('customAlias').value = '';
+                    
+                    // Refresh the table
+                    fetchRecentUrls();
+                } else {
+                    const errorText = await response.text();
+                    statusMsg.className = 'message error';
+                    statusMsg.innerText = errorText || 'Failed to shorten URL. Alias might be taken.';
+                }
+            } catch (error) {
+                statusMsg.className = 'message error';
+                statusMsg.innerText = 'Server connection error. Please make sure the backend is running.';
+            } finally {
+                btn.innerText = 'Shorten URL';
+                btn.disabled = false;
+            }
+        }
+
+        function copyToClipboard() {
+            const shortLink = document.getElementById('shortLink');
+            shortLink.select();
+            shortLink.setSelectionRange(0, 99999);
+            document.execCommand('copy');
+            
+            const statusMsg = document.getElementById('statusMessage');
+            statusMsg.className = 'message success';
+            statusMsg.innerText = 'Copied to clipboard!';
+            
+            setTimeout(() => { statusMsg.innerText = ''; }, 3000);
+        }
+
+        async function deleteUrl(shortCode) {
+            if (!confirm(`Are you sure you want to delete the short link: /${shortCode}?`)) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/v1/urls/${shortCode}`, {
+                    method: 'DELETE'
+                });
+
+                if (response.ok) {
+                    fetchRecentUrls();
+                } else {
+                    alert("Failed to delete the URL.");
+                }
+            } catch (error) {
+                console.error("Error deleting URL:", error);
+                alert("An error occurred while deleting the URL.");
+            }
+        }
+
+        async function fetchRecentUrls() {
+            const tbody = document.getElementById('recentTableBody');
+            try {
+                const response = await fetch('/api/v1/urls/recent');
+                if (response.ok) {
+                    const urls = await response.json();
+                    
+                    if (urls.length === 0) {
+                        tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; color: var(--text-muted);">No links created yet. Be the first!</td></tr>';
+                        document.getElementById('totalLinksCounter').innerText = "0";
+                        document.getElementById('totalClicksCounter').innerText = "0";
+                        return;
+                    }
+
+                    tbody.innerHTML = '';
+                    const baseUrl = window.location.origin;
+                    
+                    let totalClicks = 0;
+
+                    urls.forEach(url => {
+                        totalClicks += url.clickCount;
+                        const tr = document.createElement('tr');
+                        
+                        // Original URL col
+                        const tdOriginal = document.createElement('td');
+                        tdOriginal.innerHTML = `<a href="${url.originalUrl}" target="_blank" class="truncate" style="color:var(--text-main); text-decoration:none;" title="${url.originalUrl}">${url.originalUrl}</a>`;
+                        
+                        // Short URL col
+                        const tdShort = document.createElement('td');
+                        const shortFullUrl = `${baseUrl}/${url.shortCode}`;
+                        tdShort.innerHTML = `<a href="${shortFullUrl}" target="_blank" style="color:var(--primary); font-weight:500; text-decoration:none;">/${url.shortCode}</a>`;
+                        
+                        // Clicks col
+                        const tdClicks = document.createElement('td');
+                        tdClicks.innerHTML = `<span class="badge">${url.clickCount}</span>`;
+
+                        // Actions col
+                        const tdActions = document.createElement('td');
+                        tdActions.innerHTML = `<button class="delete-btn" onclick="deleteUrl('${url.shortCode}')">🗑️ Delete</button>`;
+
+                        tr.appendChild(tdOriginal);
+                        tr.appendChild(tdShort);
+                        tr.appendChild(tdClicks);
+                        tr.appendChild(tdActions);
+                        tbody.appendChild(tr);
+                    });
+                    
+                    // Update stats
+                    document.getElementById('totalLinksCounter').innerText = urls.length + "+";
+                    document.getElementById('totalClicksCounter').innerText = totalClicks;
+                }
+            } catch (error) {
+                console.error('Failed to fetch recent URLs', error);
+            }
+        }
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,120 @@
+---
+- name: Setup DevOps Server with Docker, Jenkins, k3s, and Monitoring
+  hosts: all
+  become: yes
+  tasks:
+    - name: Update apt cache
+      apt:
+        update_cache: yes
+        cache_valid_time: 3600
+
+    - name: Install required dependencies
+      apt:
+        name:
+          - apt-transport-https
+          - ca-certificates
+          - curl
+          - software-properties-common
+          - git
+          - openjdk-21-jdk
+        state: present
+
+    # ==========================
+    # DOCKER INSTALLATION
+    # ==========================
+    - name: Add Docker GPG key
+      apt_key:
+        url: https://download.docker.com/linux/ubuntu/gpg
+        state: present
+
+    - name: Add Docker repository
+      apt_repository:
+        repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu {{ ansible_distribution_release }} stable
+        state: present
+
+    - name: Install Docker
+      apt:
+        name:
+          - docker-ce
+          - docker-ce-cli
+          - containerd.io
+        state: present
+
+    - name: Ensure Docker service is running
+      systemd:
+        name: docker
+        state: started
+        enabled: yes
+
+    - name: Add ubuntu user to docker group
+      user:
+        name: ubuntu
+        groups: docker
+        append: yes
+
+    # ==========================
+    # JENKINS INSTALLATION
+    # ==========================
+    - name: Add Jenkins GPG key
+      apt_key:
+        url: https://pkg.jenkins.io/debian-stable/jenkins.io-2023.key
+        state: present
+
+    - name: Add Jenkins repository
+      apt_repository:
+        repo: deb https://pkg.jenkins.io/debian-stable binary/
+        state: present
+
+    - name: Install Jenkins
+      apt:
+        name: jenkins
+        state: present
+
+    - name: Add jenkins user to docker group
+      user:
+        name: jenkins
+        groups: docker
+        append: yes
+
+    - name: Ensure Jenkins service is running
+      systemd:
+        name: jenkins
+        state: started
+        enabled: yes
+
+    # ==========================
+    # KUBERNETES (K3S) INSTALLATION
+    # ==========================
+    - name: Install k3s
+      shell: curl -sfL https://get.k3s.io | sh -
+      args:
+        creates: /usr/local/bin/k3s
+
+    - name: Ensure k3s config is readable by ubuntu and jenkins
+      file:
+        path: /etc/rancher/k3s/k3s.yaml
+        mode: '0644'
+
+    # ==========================
+    # HELM & MONITORING (Prometheus/Grafana)
+    # ==========================
+    - name: Install Helm
+      shell: curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+      args:
+        creates: /usr/local/bin/helm
+        
+    - name: Add Prometheus Community Helm repo
+      shell: helm repo add prometheus-community https://prometheus-community.github.io/helm-charts && helm repo update
+      environment:
+        KUBECONFIG: /etc/rancher/k3s/k3s.yaml
+
+    - name: Install Kube-Prometheus-Stack (Prometheus & Grafana)
+      shell: >
+        helm upgrade --install monitoring prometheus-community/kube-prometheus-stack 
+        --namespace monitoring --create-namespace
+        --set grafana.service.type=NodePort
+        --set grafana.service.nodePort=30000
+        --set prometheus.service.type=NodePort
+        --set prometheus.service.nodePort=30090
+      environment:
+        KUBECONFIG: /etc/rancher/k3s/k3s.yaml

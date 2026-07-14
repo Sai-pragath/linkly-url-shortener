@@ -1,0 +1,10 @@
+target/
+!.mvn/wrapper/maven-wrapper.jar
+!**/src/main/**
+!pom.xml
+!mvnw
+!mvnw.cmd
+.git
+.gitignore
+.dockerignore
+*.md

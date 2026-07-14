@@ -31,6 +31,10 @@
         dump: 0
         state: present
 
+    - name: Clean up old conflicting apt repo files to prevent GPG errors
+      shell: rm -f /etc/apt/sources.list.d/*docker* /etc/apt/sources.list.d/*jenkins* /etc/apt/sources.list.d/archive_uri_*
+      ignore_errors: yes
+
     - name: Update apt cache
       apt:
         update_cache: yes
@@ -50,10 +54,6 @@
     # ==========================
     # DOCKER INSTALLATION
     # ==========================
-    - name: Clean up old conflicting apt repo files to prevent GPG errors
-      shell: rm -f /etc/apt/sources.list.d/*docker* /etc/apt/sources.list.d/*jenkins* /etc/apt/sources.list.d/archive_uri_*
-      ignore_errors: yes
-
     - name: Ensure keyrings directory exists
       file:
         path: /etc/apt/keyrings
@@ -161,5 +161,6 @@
         --set grafana.service.nodePort=30000
         --set prometheus.service.type=NodePort
         --set prometheus.service.nodePort=30090
+        --timeout 10m
       environment:
         KUBECONFIG: /etc/rancher/k3s/k3s.yaml

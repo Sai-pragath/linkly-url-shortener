@@ -11,3 +11,6 @@ spec:
   endpoints:
   - port: http-metrics
     path: "/actuator/prometheus"
+    relabelings:
+    - targetLabel: application
+      replacement: url-shortener
